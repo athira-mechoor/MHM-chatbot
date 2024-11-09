@@ -1,29 +1,30 @@
-import streamlit as st
+# Import necessary libraries
+import os
 import pandas as pd
 import numpy as np
-print("Trying to import StandardScaler from scikit-learn")
+
+# Explicitly install scikit-learn
+os.system('pip install scikit-learn')
+
+# Now attempt the import after installation
 from sklearn.preprocessing import StandardScaler
 
 # Load dataset
 def load_data():
-    # Streamlit file uploader to allow the user to upload a CSV file
-    uploaded_file = st.file_uploader("Upload your data file", type="csv")
-    if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file)
-        return data
-    else:
-        st.warning("Please upload a CSV file.")
-        return None
+    # Replace 'data.csv' with the path to your dataset
+    data = pd.read_csv('data.csv')
+    return data
 
 # Preprocess the data
 def preprocess_data(data):
+    # Convert all appropriate columns to numeric, ignoring non-numeric ones
     numeric_cols = data.select_dtypes(include=['float64', 'int64']).columns
     non_numeric_cols = data.select_dtypes(exclude=['float64', 'int64']).columns
 
     # Handle missing values for numeric columns
     data[numeric_cols] = data[numeric_cols].fillna(data[numeric_cols].mean())
 
-    # Handle missing values for non-numeric columns (fill with mode)
+    # Handle missing values for non-numeric columns (fill with mode or specific value)
     data[non_numeric_cols] = data[non_numeric_cols].fillna(data[non_numeric_cols].mode().iloc[0])
 
     # Normalize numeric data
@@ -50,40 +51,42 @@ def provide_suggestions(user_input, data):
 
 # Main function to create Streamlit app
 def main():
+    import streamlit as st
+
     st.title("Menstrual Health Chatbot")
 
     # Load and preprocess data
     data = load_data()
-    if data is not None:
-        processed_data = preprocess_data(data)
+    processed_data = preprocess_data(data)
 
-        st.subheader("Tell me about your current situation:")
+    st.subheader("Tell me about your current situation:")
 
-        # User inputs
-        cycle_length = st.slider("Cycle Length (days)", 21, 35)
-        bleeding_duration = st.slider("Bleeding Duration (days)", 1, 7)
-        sleep_hours = st.slider("Sleep Hours per Night", 3, 12)
-        stress_level = st.slider("Stress Level (1-10)", 1, 10)
-        exercise_frequency = st.slider("Exercise Frequency per Week", 0, 7)
+    # User inputs
+    cycle_length = st.slider("Cycle Length (days)", 21, 35)
+    bleeding_duration = st.slider("Bleeding Duration (days)", 1, 7)
+    sleep_hours = st.slider("Sleep Hours per Night", 3, 12)
+    stress_level = st.slider("Stress Level (1-10)", 1, 10)
+    exercise_frequency = st.slider("Exercise Frequency per Week", 0, 7)
 
-        # Create a dictionary of user inputs
-        user_input = {
-            'cycle_length': cycle_length,
-            'bleeding_duration': bleeding_duration,
-            'sleep_hours': sleep_hours,
-            'stress_level': stress_level,
-            'exercise_frequency': exercise_frequency
-        }
+    # Create a dictionary of user inputs
+    user_input = {
+        'cycle_length': cycle_length,
+        'bleeding_duration': bleeding_duration,
+        'sleep_hours': sleep_hours,
+        'stress_level': stress_level,
+        'exercise_frequency': exercise_frequency
+    }
 
-        # Generate suggestions based on user input
-        if st.button("Get Suggestions"):
-            suggestions = provide_suggestions(user_input, processed_data)
-            if suggestions:
-                st.write("Here are some suggestions for you:")
-                for suggestion in suggestions:
-                    st.write("- " + suggestion)
-            else:
-                st.write("No specific suggestions at this time.")
+    # Generate suggestions based on user input
+    if st.button("Get Suggestions"):
+        suggestions = provide_suggestions(user_input, processed_data)
+        if suggestions:
+            st.write("Here are some suggestions for you:")
+            for suggestion in suggestions:
+                st.write("- " + suggestion)
+        else:
+            st.write("No specific suggestions at this time.")
 
 if __name__ == "__main__":
     main()
+
