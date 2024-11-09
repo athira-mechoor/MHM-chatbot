@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+print("Trying to import StandardScaler from scikit-learn")
 from sklearn.preprocessing import StandardScaler
 
 # Load dataset
